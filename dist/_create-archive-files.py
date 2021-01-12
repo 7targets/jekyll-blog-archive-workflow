@@ -78,30 +78,33 @@ if __name__ == '__main__':
         for arch_type in archive_types.keys():
             file_list = []
             archive_type = archive_types[arch_type]
-            for archive_value in list(set(json_data[archive_type])):
-                value_escaped = re.sub(r'\s|\.', '-', archive_value)
-                value_escaped = re.sub(r'#', 'sharp', value_escaped)
-                value_escaped = re.sub(r'[^a-z0-9A-Z_]', '-', value_escaped)
-                value_escaped = value_escaped.lower()
-                front_matter = create_front_matter(
-                    arch_type, archive_type, archive_value, value_escaped)
-                file_name = value_escaped + '.md'
-                file_list.append(file_name)
-                file_path = archive_folder_path + '/' + archive_type + '/' + file_name
-                if not os.path.exists(file_path):
-                    pathlib.Path(archive_folder_path + '/' + archive_type).mkdir(parents=True, exist_ok=True)
-                    with open(file_path, 'w') as archive_md_file:
-                        archive_md_file.writelines(front_matter)
-                    added_files.append(archive_type + ': ' + file_name)
             try:
-                all_files = os.listdir(archive_folder_path + '/' + archive_type)
-            except FileNotFoundError as file_not_found_exc:  # Ignore the FileNotFoundError exception. 
-                print("Ignoring. File not found: {}".format(file_not_found_exc))
-                
-            for archive_file in all_files:
-                if archive_file not in file_list:
-                    os.remove(archive_folder_path + '/' + archive_type + '/' + archive_file)
-                    removed_files.append(archive_type + ": " + archive_file)
+                for archive_value in list(set(json_data[archive_type])):
+                    value_escaped = re.sub(r'\s|\.', '-', archive_value)
+                    value_escaped = re.sub(r'#', 'sharp', value_escaped)
+                    value_escaped = re.sub(r'[^a-z0-9A-Z_]', '-', value_escaped)
+                    value_escaped = value_escaped.lower()
+                    front_matter = create_front_matter(
+                        arch_type, archive_type, archive_value, value_escaped)
+                    file_name = value_escaped + '.md'
+                    file_list.append(file_name)
+                    file_path = archive_folder_path + '/' + archive_type + '/' + file_name
+                    if not os.path.exists(file_path):
+                        pathlib.Path(archive_folder_path + '/' + archive_type).mkdir(parents=True, exist_ok=True)
+                        with open(file_path, 'w') as archive_md_file:
+                            archive_md_file.writelines(front_matter)
+                        added_files.append(archive_type + ': ' + file_name)
+                try:
+                    all_files = os.listdir(archive_folder_path + '/' + archive_type)
+                except FileNotFoundError as file_not_found_exc:  # Ignore the FileNotFoundError exception. 
+                    print("Ignoring. File not found: {}".format(file_not_found_exc))
+
+                for archive_file in all_files:
+                    if archive_file not in file_list:
+                        os.remove(archive_folder_path + '/' + archive_type + '/' + archive_file)
+                        removed_files.append(archive_type + ": " + archive_file)
+            except KeyError as key_error:
+                 print("Ignoring. Key not found: {}".format(archive_type))
 
         if len(added_files) > 0:
             print('Added archive files:')
