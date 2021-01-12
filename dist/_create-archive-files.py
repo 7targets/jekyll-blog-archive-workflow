@@ -93,7 +93,11 @@ if __name__ == '__main__':
                     with open(file_path, 'w') as archive_md_file:
                         archive_md_file.writelines(front_matter)
                     added_files.append(archive_type + ': ' + file_name)
-            all_files = os.listdir(archive_folder_path + '/' + archive_type)
+            try:
+                all_files = os.listdir(archive_folder_path + '/' + archive_type)
+            except FileNotFoundError as file_not_found_exc:  # Ignore the FileNotFoundError exception. 
+                print("Ignoring. File not found: {}".format(file_not_found_exc))
+                
             for archive_file in all_files:
                 if archive_file not in file_list:
                     os.remove(archive_folder_path + '/' + archive_type + '/' + archive_file)
